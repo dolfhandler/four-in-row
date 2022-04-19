@@ -1,5 +1,5 @@
 const WIDTH = 800,
-		HEIGHT = 600,
+		HEIGHT = 700,
 		FPS = 60,
 		SHIP_WINNER = 4;
 		MILISECONDS_IN_A_SECONDS = 1000
@@ -48,8 +48,8 @@ function handlerClickEvent(e) {
 
 function mainLoop() {
 	clearCanvas();
-	stage.drawBackStage();
 	chips.clear();
+	stage.drawBackStage();
 	stage.draw();
 	chips.draw();
 	chips.goDown();
@@ -66,7 +66,8 @@ var Stage = function() {
 	this.drawFrontStage = function() {
 		for(let y = 0; y < board.length; y++) {
 			for(let x = 0; x < board[y].length; x++) {
-				ctx.drawImage(img3, (x+1) * TILE_WIDTH, (y+1) * TILE_HEIGHT);
+				if(board[y][x] != 1)
+					ctx.drawImage(img3, (x+1) * TILE_WIDTH, (y+1) * TILE_HEIGHT);
 			}
 		}
 	}
@@ -74,6 +75,7 @@ var Stage = function() {
 	this.drawBackStage = function() {
 		for(let y = 0; y < board.length; y++) {
 			for(let x = 0; x < board[y].length; x++) {
+				if(board[y][x] != 1)
 				ctx.drawImage(img0, (x+1) * TILE_WIDTH, (y+1) * TILE_HEIGHT);
 			}
 		}
@@ -86,9 +88,9 @@ var Stage = function() {
 				if(board[y][x] == 1) {
 					color = '#00f';
 				} else if(board[y][x] == 2) {
-					ctx.drawImage(img1, x * TILE_WIDTH, y * TILE_HEIGHT);
+					ctx.drawImage(img1, (x + 1) * TILE_WIDTH, (y + 1) * TILE_HEIGHT);
 				} else if(board[y][x] == 3) {
-					ctx.drawImage(img2, x * TILE_WIDTH, y * TILE_HEIGHT);
+					ctx.drawImage(img2, (x + 1) * TILE_WIDTH, (y + 1) * TILE_HEIGHT);
 				} else {
 					
 				}
@@ -107,17 +109,18 @@ var Chip = function() {
 	this.image = img1;
 	
 	this.isInsideBound = function(ex, ey) {
-		for(let i = 0; i < board.length; i++) {
-			for(let j = 0; j < board[i].length; j++) {
+		for(let i = 0; i < board.length+1; i++) {
+			for(let j = 0; j < board[0].length+1; j++) {
 				if(board[i][j] != 1){
 					if(
 						ex > j * TILE_WIDTH &&
 						ey > i * TILE_HEIGHT &&
-						ex < TILE_WIDTH * (j + 1) &&
-						ey < TILE_HEIGHT * (i + 1)
+						ex < TILE_WIDTH * (j+1) &&
+						ey < TILE_HEIGHT * (i+1)
 					) {
-						this.x = j;
+						this.x = j-1;
 						this.y = i;
+						//console.log(`(x:${this.x},y:${this.y})`);
 						this.isPosibleDraw = true;
 						return true;
 					}
@@ -132,13 +135,7 @@ var Chip = function() {
 			return;
 		
 		this.image = turn % 2 == 0 ? img1 : img2;
-		ctx.drawImage(this.image, this.x * TILE_WIDTH, this.y * TILE_HEIGHT);
-		/*ctx.fillRect(
-			this.x * TILE_WIDTH,
-			this.y * TILE_HEIGHT,
-			TILE_WIDTH, 
-			TILE_HEIGHT
-		);*/
+		ctx.drawImage(this.image, (this.x + 1) * TILE_WIDTH, (this.y + 1) * TILE_HEIGHT);
 	}
 	
 	this.isHitting = function() {
@@ -164,9 +161,7 @@ var Chip = function() {
 	}
 	
 	this.validateWinner = function() {
-		for(let y = 0; y < board.length - 1; y++) {
-			//if(board[y] == rowEmpty) continue;
-			
+		for(let y = 0; y < board.length - 1; y++) {			
 			for(let x = 0; x < board[y].length; x++) {
 				if(board[y][x] != 0) {
 					let pivot = board[y][x];
