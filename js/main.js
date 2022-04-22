@@ -17,19 +17,18 @@ img3.src = 'image/central-space.png';
 var canvas = document.querySelector('#canvas');
 var ctx = canvas.getContext('2d');
 var turn = 0;
-var rowEmpty = [0,0,0,0,0,0,0,0,0];
+var rowEmpty = [0,0,0,0,0,0,0];
 var fourInRow = [0,0,0,0];
+var fourInLine = [];
 	
 var board = [
-	[0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0],
-	[1,1,1,1,1,1,1,1,1],
+	[0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0],
+	[1,1,1,1,1,1,1],
 ];
 
 document.addEventListener('DOMContentLoaded', handlerDomContentLoadedEvent);
@@ -120,7 +119,6 @@ var Chip = function() {
 					) {
 						this.x = j-1;
 						this.y = i;
-						//console.log(`(x:${this.x},y:${this.y})`);
 						this.isPosibleDraw = true;
 						return true;
 					}
@@ -143,7 +141,7 @@ var Chip = function() {
 			board[this.y][this.x] = turn % 2 == 0 ? 2 : 3;
 			this.isHit = true;
 			
-			this.validateWinner();
+			this.validateWinner(this.x, this.y);
 		}
 	}
 	
@@ -160,46 +158,71 @@ var Chip = function() {
 		}
 	}
 	
-	this.validateWinner = function() {
-		for(let y = 0; y < board.length - 1; y++) {			
-			for(let x = 0; x < board[y].length; x++) {
-				if(board[y][x] != 0) {
-					let pivot = board[y][x];
-					if(this.validateHorizontal(pivot, y)) {
-						console.log("GANASTE EN HORIZONTAL!!!!!");
-						return;
-					}
-					
-					if(this.validateDiagonalRight(pivot, x, y)) {
-						console.log("GANASTE EN DIAGONAL DERECHA!!!!!");
-						return;
-					}
-					
-					if(this.validateDiagonalLeft(pivot, x, y)) {
-						console.log("GANASTE EN DIAGONAL IZQUIERDA!!!!!");
-						return;
-					}
-					
-					if(this.validateVertical(pivot, x)) {
-						console.log("GANASTE EN VERTICAL!!!!!");
-						return;
-					}
-				}
-			}
+	this.validateWinner = function(x, y) {
+		fourInLine = [];
+		let pivot = board[y][x];
+		if(this.validateHorizontal(pivot, x, y)) {
+			console.log("GANASTE EN HORIZONTAL!!!!!");
+		console.log(fourInLine);
+			return;
+		}
+		
+		fourInLine = [];
+		if(this.validateDiagonalRight(pivot, x, y)) {
+			console.log("GANASTE EN DIAGONAL DERECHA!!!!!");
+		console.log(fourInLine);
+			return;
+		}
+		
+		fourInLine = [];
+		if(this.validateDiagonalLeft(pivot, x, y)) {
+			console.log("GANASTE EN DIAGONAL IZQUIERDA!!!!!");
+		console.log(fourInLine);
+			return;
+		}
+		
+		fourInLine = [];
+		if(this.validateVertical(pivot, x, y)) {
+			console.log("GANASTE EN VERTICAL!!!!!");
+		console.log(fourInLine);
+			return;
 		}
 	}
 	
-	this.validateHorizontal = function(ship, y) {
+	this.validateHorizontal = function(ship, x, y) {
+		let saveX = x, saveY = y;
 		let base = fourInRow.map(x => ship);
-		return findSubArrayInArray(board[y], base);
+		let horizontal = [];
+		
+		for(let i = 0; i < 4 && (x < board[0].length); i++) {
+			if(board[y][x] != ship) break;
+			
+			fourInLine.push({x: x, y: y});
+			horizontal.splice(i,0, board[y][x]);
+			x++;
+		}
+		x = saveX-1;
+		for(let i = 0; i < 4 && (x > 0); i++) {
+			if(board[y][x] != ship) break;
+			
+			fourInLine.push({x: x, y: y});
+			horizontal.splice(i,0, board[y][x]);
+			x--;
+		}
+		
+		return findSubArrayInArray(horizontal, base);
 	}
 	
-	this.validateVertical = function(ship, x) {
+	this.validateVertical = function(ship, x, y) {
 		let base = fourInRow.map(fir => ship);
 		let vertical = [];
-		for(let y = 0; y < board[0].length - 1; y++) {
-			vertical.push(board[y][x]);
+		
+		for(let i = 0; i < 4 && (y < board[0].length - 1); i++) {
+			fourInLine.push({x: x, y: y});
+			vertical.splice(i,0, board[y][x]);
+			y++;
 		}
+		
 		return findSubArrayInArray(vertical, base);
 	}
 	
@@ -207,31 +230,28 @@ var Chip = function() {
 		let base = fourInRow.map(a => ship);
 		let diagonalRight = [];
 		
-		do {
-			diagonalRight.splice(x,0, board[y][x]);
-			x--; y--;
-		} while(x > 0 && y > 0);
-		do {
-			diagonalRight.splice(x,0, board[y][x]);
+		for(let i = 0; i < 4 && (x < board[0].length && y < board.length - 1); i++) {
+			fourInLine.push({x: x, y: y});
+			diagonalRight.splice(i,0, board[y][x]);
 			x++; y++;
-		} while(y < board.length-2 && x < board[0].length);
+		}
 		
 		return findSubArrayInArray(diagonalRight, base);
 	}
 		
 	this.validateDiagonalLeft = function(ship, x, y) {
+		//let saveX = x, saveY = y;
 		let base = fourInRow.map(a => ship);
 		let diagonalLeft = [];
 		
-		do {
-			diagonalLeft.splice(x,0, board[y][x]);
-			x++; y--;
-		} while(x < board[0].length && y > 0);
-		do {
-			diagonalLeft.splice(x,0, board[y][x]);
+		//board.length - 1 se le resta uno para que no tenga en cuenta
+		//la fila de tope 
+		for(let i = 0; i < 4 && (x > 0 && y < board.length - 1); i++) {
+			fourInLine.push({x: x, y: y});
+			diagonalLeft.splice(i,0, board[y][x]);
 			x--; y++;
-		} while(x > 0 && y < board.length-1);
-		
+		}
+				
 		return findSubArrayInArray(diagonalLeft, base);
 	}
 }
