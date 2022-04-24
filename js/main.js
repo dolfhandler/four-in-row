@@ -1,7 +1,4 @@
-const WIDTH = 800,
-		HEIGHT = 700,
-		FPS = 60,
-		CHIP_WINNER = 4;
+const FPS = 60,
 		MILISECONDS_IN_A_SECONDS = 1000
 		TILE_WIDTH = 75,
 		TILE_HEIGHT = 75;
@@ -33,8 +30,8 @@ const X_CORNER_TOP_LEFT = 0,
 	X_CORNER_BOTTOM_RIGHT = TILE_WIDTH * 2,
 	Y_CORNER_BOTTOM_RIGHT = TILE_HEIGHT * 2,
 	
-	X_BACK_STAGE = TILE_WIDTH * 3,
-	Y_BACK_STAGE = TILE_HEIGHT * 2
+	X_BACK_STAGE = TILE_WIDTH * 5,
+	Y_BACK_STAGE = 0
 	
 	X_RED_CHIP = TILE_WIDTH * 4,
 	Y_RED_CHIP = 0,
@@ -42,10 +39,10 @@ const X_CORNER_TOP_LEFT = 0,
 	X_YELLOW_CHIP = TILE_WIDTH * 3,
 	Y_YELLOW_CHIP = 0
 	
-	X_RED_CHIP_WIN = TILE_WIDTH * 4,
-	Y_RED_CHIP_WIN = TILE_HEIGHT * 1,
+	X_RED_CHIP_WIN = TILE_WIDTH * 5,
+	Y_RED_CHIP_WIN = TILE_HEIGHT * 2,
 	
-	X_YELLOW_CHIP_WIN = TILE_WIDTH * 3,
+	X_YELLOW_CHIP_WIN = TILE_WIDTH * 5,
 	Y_YELLOW_CHIP_WIN = TILE_HEIGHT * 1;
 		
 var tileMap = new Image();
@@ -100,8 +97,8 @@ function handlerDomContentLoadedEvent() {
 
 function handlerClickEvent(e) {
 	if(!(
-		(e.offsetX > 75 && e.offsetX < 75 * 8) && 
-		(e.offsetY >= 0 && e.offsetY <= 75))
+		(e.offsetX > TILE_WIDTH && e.offsetX < TILE_WIDTH * (board[0].length + 1)) && 
+		(e.offsetY >= 0 && e.offsetY <= TILE_WIDTH))
 	) return;
 	if(finish == 1) return;
 	
@@ -113,10 +110,9 @@ function handlerClickEvent(e) {
 }
 
 function handlerMouseMoveCanvas(e) {
-	txtLabel.innerHTML = `${e.offsetX}, ${e.offsetY}`;
 	if(!(
-		(e.offsetX > 75 && e.offsetX < 75 * 8) && 
-		(e.offsetY >= 0 && e.offsetY <= 75))
+		(e.offsetX > TILE_WIDTH && e.offsetX < TILE_WIDTH * (board[0].length + 1)) && 
+		(e.offsetY >= 0 && e.offsetY <= TILE_WIDTH))
 	) return;
 	
 	chipMovedX = e.offsetX, chipMovedY = e.offsetY;
@@ -139,8 +135,6 @@ function mainLoop() {
 }
 
 function clearCanvas() {
-	canvas.style.width = WIDTH;
-	canvas.style.height = HEIGHT;
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -148,62 +142,61 @@ var Stage = function() {
 	this.drawFrontStage = function() {
 		for(let y = 0; y < board.length; y++) {
 			for(let x = 0; x < board[y].length; x++) {
-				if(board[y][x] == 1) continue;
+				if(board[y][x] == 1) break;
 					
 				if(x == 0 && y == 0)
 					ctx.drawImage(
 						tileMap, X_CORNER_TOP_LEFT, Y_CORNER_TOP_LEFT, TILE_WIDTH, TILE_HEIGHT, 
-						(x+1) * TILE_WIDTH, (y+1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+						(x + 1) * TILE_WIDTH, (y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 					);
 				
 				if((x > 0  && y == 0) && x < WIDTH_LIMIT)
 					ctx.drawImage(
 						tileMap, X_TOP_CENTER, Y_TOP_CENTER, TILE_WIDTH, TILE_HEIGHT,
-						(x+1) * TILE_WIDTH, (y+1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+						(x + 1) * TILE_WIDTH, (y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 					);
 				
 				if(y == 0 && x == WIDTH_LIMIT)
 					ctx.drawImage(
 						tileMap, X_CORNER_TOP_RIGHT, Y_CORNER_TOP_RIGHT, TILE_WIDTH, TILE_HEIGHT,
-						(x+1) * TILE_WIDTH, (y+1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+						(x + 1) * TILE_WIDTH, (y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 					);
 				
 				if((y > 0  && y < HEIGHT_LIMIT) && x == 0)
 					ctx.drawImage(
 						tileMap, X_LEFT_CENTER, Y_LEFT_CENTER, TILE_WIDTH, TILE_HEIGHT,
-						(x+1) * TILE_WIDTH, (y+1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+						(x + 1) * TILE_WIDTH, (y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 					);
 				
 				if((x > 0  && x < WIDTH_LIMIT) && (y > 0 && y < HEIGHT_LIMIT))
 					ctx.drawImage(
 						tileMap, X_CENTER_CENTER, Y_CENTER_CENTER, TILE_WIDTH, TILE_HEIGHT,
-						(x+1) * TILE_WIDTH, (y+1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+						(x + 1) * TILE_WIDTH, (y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 					);
 				
 				if((y > 0  && y < HEIGHT_LIMIT) && x == WIDTH_LIMIT)
 					ctx.drawImage(
 						tileMap, X_RIGHT_CENTER, Y_RIGHT_CENTER, TILE_WIDTH, TILE_HEIGHT,
-						(x+1) * TILE_WIDTH, (y+1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+						(x + 1) * TILE_WIDTH, (y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 					);
 					
 				if(x == 0 && y == HEIGHT_LIMIT)
 					ctx.drawImage(
 						tileMap, X_CORNER_BOTTOM_LEFT, Y_CORNER_BOTTOM_LEFT, TILE_WIDTH, 
-						TILE_HEIGHT, (x+1) * TILE_WIDTH, (y+1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+						TILE_HEIGHT, (x + 1) * TILE_WIDTH, (y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 					);
 				
 				if((x > 0  && x < WIDTH_LIMIT) && y == HEIGHT_LIMIT)
 					ctx.drawImage(
 						tileMap, X_BOTTOM_CENTER, Y_BOTTOM_CENTER, TILE_WIDTH, TILE_HEIGHT,
-						(x+1) * TILE_WIDTH, (y+1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+						(x + 1) * TILE_WIDTH, (y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 					);
 				
 				if(y == HEIGHT_LIMIT && x == WIDTH_LIMIT)
 					ctx.drawImage(
 						tileMap, X_CORNER_BOTTOM_RIGHT, Y_CORNER_BOTTOM_RIGHT, TILE_WIDTH, TILE_HEIGHT,
-						(x+1) * TILE_WIDTH, (y+1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+						(x + 1) * TILE_WIDTH, (y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 					);
-				
 			}
 		}
 	}
@@ -215,7 +208,7 @@ var Stage = function() {
 				
 				ctx.drawImage(
 					tileMap, X_BACK_STAGE, Y_BACK_STAGE, TILE_WIDTH, TILE_HEIGHT,
-					(x+1) * TILE_WIDTH, (y+1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+					(x + 1) * TILE_WIDTH, (y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 				);
 			}
 		}
@@ -228,12 +221,12 @@ var Stage = function() {
 				if(board[y][x] == 2) 
 					ctx.drawImage(
 						tileMap, X_YELLOW_CHIP, Y_YELLOW_CHIP, TILE_WIDTH, TILE_HEIGHT,
-						(x+1) * TILE_WIDTH, (y+1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+						(x + 1) * TILE_WIDTH, (y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 					);
 				if(board[y][x] == 3)
 					ctx.drawImage(
 						tileMap, X_RED_CHIP, Y_RED_CHIP, TILE_WIDTH, TILE_HEIGHT,
-						(x+1) * TILE_WIDTH, (y+1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+						(x + 1) * TILE_WIDTH, (y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 					);
 			}
 		}			
@@ -249,16 +242,16 @@ var Chip = function() {
 	this.isHit = false;
 	
 	this.isInsideBound = function(ex, ey) {
-		for(let i = 0; i < board.length+1; i++) {
-			for(let j = 0; j < board[0].length+1; j++) {
+		for(let i = 0; i < board.length + 1; i++) {
+			for(let j = 0; j < board[0].length + 1; j++) {
 				if(board[i][j] != 1){
 					if(
 						ex > j * TILE_WIDTH &&
 						ey > i * TILE_HEIGHT &&
-						ex < TILE_WIDTH * (j+1) &&
-						ey < TILE_HEIGHT * (i+1)
+						ex < TILE_WIDTH * (j + 1) &&
+						ey < TILE_HEIGHT * (i + 1)
 					) {
-						this.x = j-1;
+						this.x = j - 1;
 						this.y = i;
 						this.isPosibleDraw = true;
 						return true;
@@ -276,12 +269,12 @@ var Chip = function() {
 		if(turn % 2 == 0)
 			ctx.drawImage(
 				tileMap, X_YELLOW_CHIP, Y_YELLOW_CHIP, TILE_WIDTH, TILE_HEIGHT,
-				(this.x+1) * TILE_WIDTH, (this.y+1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+				(this.x + 1) * TILE_WIDTH, (this.y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 			);
 		else
 			ctx.drawImage(
 				tileMap, X_RED_CHIP, Y_RED_CHIP, TILE_WIDTH, TILE_HEIGHT,
-				(this.x+1) * TILE_WIDTH, (this.y+1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+				(this.x + 1) * TILE_WIDTH, (this.y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 			);
 	}
 	
@@ -296,7 +289,6 @@ var Chip = function() {
 	
 	this.goDown = function() {
 		if(this.isHitting()) {
-			//soundChipHit.play();
 			return;
 		}
 		
@@ -397,7 +389,7 @@ var Chip = function() {
 		let base = fourInRow.map(a => chip);
 		let diagonalLeft = [];
 		
-		//board.length - 1 se le resta uno para que no tenga en cuenta
+		//board.length - 1: Se le resta uno para que no tenga en cuenta
 		//la fila de tope 
 		for(let i = 0; i < 4 && (x >= 0 && y < board.length - 1); i++) {
 			fourInLine.push({x: x, y: y});
@@ -442,12 +434,12 @@ var ChipWinner = function(x, y, chip) {
 		if(this.chip == 2)
 			ctx.drawImage(
 				tileMap, X_YELLOW_CHIP_WIN, Y_YELLOW_CHIP_WIN, TILE_WIDTH, TILE_HEIGHT,
-				(this.x+1) * TILE_WIDTH, (this.y+1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+				(this.x + 1) * TILE_WIDTH, (this.y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 			);
 		else
 			ctx.drawImage(
 				tileMap, X_RED_CHIP_WIN, Y_RED_CHIP_WIN, TILE_WIDTH, TILE_HEIGHT,
-				(this.x+1) * TILE_WIDTH, (this.y+1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+				(this.x + 1) * TILE_WIDTH, (this.y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 			);
 	}
 	
@@ -522,7 +514,7 @@ function drawChipMoved() {
 		(chipMovedY >= 0 && chipMovedY <= 75)) || 
 		finish == 1) return;
 	
-	if(turn % 2 == 0) 
+	if(turn % 2 != 0) 
 		ctx.drawImage(
 			tileMap, X_YELLOW_CHIP, Y_YELLOW_CHIP, TILE_WIDTH, TILE_HEIGHT,
 			chipMovedX - 37, chipMovedY, TILE_WIDTH, TILE_HEIGHT
