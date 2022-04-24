@@ -59,6 +59,7 @@ var rowEmpty = [0,0,0,0,0,0,0];
 var fourInRow = [0,0,0,0];
 var fourInLine = [];
 var chipWinnerCollection = [];
+var chipMovedX = 0, chipMovedY = 0;
 var board = [
 	[0,0,0,0,0,0,0],
 	[0,0,0,0,0,0,0],
@@ -85,10 +86,12 @@ var soudWinner = new Howl({
  * Botones
  */
 var btnStartGame = document.querySelector('#btnStartGame');
+var txtLabel = document.querySelector('#txtLabel');
 
 
 document.addEventListener('DOMContentLoaded', handlerDomContentLoadedEvent);
 canvas.addEventListener('click', handlerClickEvent);
+canvas.addEventListener('mousemove', handlerMouseMoveCanvas);
 btnStartGame.addEventListener('click', handlerClickBtnStartGame);
 
 function handlerDomContentLoadedEvent() {
@@ -96,6 +99,10 @@ function handlerDomContentLoadedEvent() {
 }
 
 function handlerClickEvent(e) {
+	if(!(
+		(e.offsetX > 75 && e.offsetX < 75 * 8) && 
+		(e.offsetY >= 0 && e.offsetY <= 75))
+	) return;
 	if(finish == 1) return;
 	
 	let chip = new Chip();
@@ -103,6 +110,16 @@ function handlerClickEvent(e) {
 	soundChipHit.play();
 	chips.add(chip);
 	turn++;
+}
+
+function handlerMouseMoveCanvas(e) {
+	txtLabel.innerHTML = `${e.offsetX}, ${e.offsetY}`;
+	if(!(
+		(e.offsetX > 75 && e.offsetX < 75 * 8) && 
+		(e.offsetY >= 0 && e.offsetY <= 75))
+	) return;
+	
+	chipMovedX = e.offsetX, chipMovedY = e.offsetY;
 }
 
 function handlerClickBtnStartGame() {
@@ -113,6 +130,7 @@ function mainLoop() {
 	clearCanvas();
 	chips.clear();
 	stage.drawBackStage();
+	drawChipMoved();
 	stage.draw();
 	chips.draw();
 	chips.goDown();
@@ -450,6 +468,11 @@ function showChipWinner() {
 	}
 }
 
+//UTILITIES
+function findSubArrayInArray(array, subArray) {
+	return (array.toString()).indexOf(subArray.toString()) > -1;
+}
+
 function restartGame() {
 	finish = 0;
     canvas = document.querySelector('#canvas');
@@ -459,6 +482,8 @@ function restartGame() {
     fourInRow = [0,0,0,0];
     fourInLine = [];
     chipWinnerCollection = [];
+	chipMovedX = 0;
+	chipMovedY = 0;
 	board = [
 		[0,0,0,0,0,0,0],
 		[0,0,0,0,0,0,0],
@@ -473,14 +498,41 @@ function restartGame() {
 	mainLoop();
 }
 
-
-//UTILITIES
-function findSubArrayInArray(array, subArray) {
-	return (array.toString()).indexOf(subArray.toString()) > -1;
+function getXYTransformation(ex, ey) {
+	for(let i = 0; i < board.length+1; i++) {
+		for(let j = 0; j < board[0].length+1; j++) {
+			if(board[i][j] != 1){
+				if(
+					ex > j * TILE_WIDTH &&
+					ey > i * TILE_HEIGHT &&
+					ex < TILE_WIDTH * (j+1) &&
+					ey < TILE_HEIGHT * (i+1)
+				) {
+					return {x: j-1, y: i};
+				}
+			}
+		}
+	}
+	return {x: 0, y: 0};
 }
 
-
-
+function drawChipMoved() {
+	if(!(
+		(chipMovedX > 75 && chipMovedX < 75 * 8) && 
+		(chipMovedY >= 0 && chipMovedY <= 75)) || 
+		finish == 1) return;
+	
+	if(turn % 2 == 0) 
+		ctx.drawImage(
+			tileMap, X_YELLOW_CHIP, Y_YELLOW_CHIP, TILE_WIDTH, TILE_HEIGHT,
+			chipMovedX - 37, chipMovedY, TILE_WIDTH, TILE_HEIGHT
+		);
+	else
+		ctx.drawImage(
+			tileMap, X_RED_CHIP, Y_RED_CHIP, TILE_WIDTH, TILE_HEIGHT,
+			chipMovedX - 37, chipMovedY, TILE_WIDTH, TILE_HEIGHT
+		);
+}
 
 
 
