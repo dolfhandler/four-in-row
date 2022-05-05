@@ -86,13 +86,16 @@ var btnStartGame = document.querySelector('#btnStartGame');
 var txtLabel = document.querySelector('#txtLabel');
 
 
-document.addEventListener('DOMContentLoaded', handlerDomContentLoadedEvent);
+document.addEventListener('DOMContentLoaded', mainLoop);
 canvas.addEventListener('click', handlerClickEvent);
 canvas.addEventListener('mousemove', handlerMouseMoveCanvas);
 btnStartGame.addEventListener('click', handlerClickBtnStartGame);
 
-function handlerDomContentLoadedEvent() {
-	setInterval(mainLoop, MILISECONDS_IN_A_SECONDS/FPS);
+function mainLoop() {
+	update();
+	draw();
+	requestAnimationFrame(mainLoop);
+	//setInterval(mainLoop, MILISECONDS_IN_A_SECONDS/FPS);
 }
 
 function handlerClickEvent(e) {
@@ -122,7 +125,12 @@ function handlerClickBtnStartGame() {
 	restartGame();
 }
 
-function mainLoop() {
+function update() {
+	updateChipWinner();
+}
+
+function draw() {
+	console.log("running...");
 	clearCanvas();
 	chips.clear();
 	stage.drawBackStage();
@@ -131,7 +139,8 @@ function mainLoop() {
 	chips.draw();
 	chips.goDown();
 	stage.drawFrontStage();
-	showChipWinner();
+	drawChipWinner();
+	animation.draw();
 }
 
 function clearCanvas() {
@@ -445,18 +454,78 @@ var ChipWinner = function(x, y, chip) {
 	
 }
 
+var Animation = function(x, y, chip) {
+	this.chip = chip;
+	this.x = x,
+	this.y = y;
+	this.index = 0;
+	this.count = 0;
+	this.delay = 10;
+	this.step = 0;
+	this.frames = 3;
+	this.flag = 0;
+	
+	this.draw = function() {
+		if(this.chip == 2)
+			ctx.drawImage(
+				tileMap, TILE_WIDTH * (this.step + 3), Y_YELLOW_CHIP_WIN, TILE_WIDTH, TILE_HEIGHT,
+				(this.x + 1) * TILE_WIDTH, (this.y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+			);
+		else
+			ctx.drawImage(
+				tileMap, TILE_WIDTH * (this.step + 3), Y_RED_CHIP_WIN, TILE_WIDTH, TILE_HEIGHT,
+				(this.x + 1) * TILE_WIDTH, (this.y + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+			);
+	}
+	
+	this.update = function() {
+		if(this.count < this.delay) {
+			this.count++;
+		} else {
+			this.count = 0;
+			this.nextStep();
+		}
+	}
+	
+	this.nextStep = function() {
+		if(this.flag == 0) {
+			if(this.step < this.frames-1) {
+				this.step++;
+			} else {
+				this.step = 0;
+				this.flag = 1;
+			}
+		} else {
+			if(this.step > 1) {
+				this.step--;
+			} else {
+				this.flag = 0;
+			}
+		}
+	}
+}
+
+var animation = new Animation();
 var stage = new Stage();
 var chips = new ChipCollection();
 
 function fillChipWinnerCollection(chipWinner) {
 	soudWinner.play();
 	finish = 1;
-	chipWinnerCollection = fourInLine.map(position => new ChipWinner(position.x, position.y, chipWinner));
+	chipWinnerCollection = fourInLine.map(
+		position => new Animation(position.x, position.y, chipWinner)
+	);
 }
 
-function showChipWinner() {
+function drawChipWinner() {
 	for(let chipWinner of chipWinnerCollection) {
-		chipWinner.drawChipIlumination();
+		chipWinner.draw();
+	}
+}
+
+function updateChipWinner() {
+	for(let chipWinner of chipWinnerCollection) {
+		chipWinner.update();
 	}
 }
 
@@ -525,7 +594,6 @@ function drawChipMoved() {
 			chipMovedX - 37, chipMovedY, TILE_WIDTH, TILE_HEIGHT
 		);
 }
-
 
 
 
