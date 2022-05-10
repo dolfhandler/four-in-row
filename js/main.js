@@ -95,7 +95,6 @@ function mainLoop() {
 	update();
 	draw();
 	requestAnimationFrame(mainLoop);
-	//setInterval(mainLoop, MILISECONDS_IN_A_SECONDS/FPS);
 }
 
 function handlerClickEvent(e) {
