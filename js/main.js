@@ -381,30 +381,44 @@ var Chip = function() {
 	}
 	
 	this.validateDiagonalRight = function(chip, x, y) {
+		let initialCoordinates = {x: x, y: y};
 		let base = fourInRow.map(a => chip);
 		let diagonalRight = [];
 		
-		for(let i = 0; i < 4 && (x < board[0].length && y < board.length - 1); i++) {
+		while(x <= WIDTH_LIMIT && y <= HEIGHT_LIMIT && board[y][x] == chip) {
 			fourInLine.push({x: x, y: y});
-			diagonalRight.splice(i,0, board[y][x]);
+			diagonalRight.push(board[y][x]);
 			x++; y++;
+		}
+		x=initialCoordinates.x-1;
+		y=initialCoordinates.y-1;
+		while(x >= 0 && y >= 0 && board[y][x] == chip) {
+			fourInLine.push({x: x, y: y});
+			diagonalRight.push(board[y][x]);
+			x--; y--;
 		}
 		
 		return findSubArrayInArray(diagonalRight, base);
 	}
-		
+	
 	this.validateDiagonalLeft = function(chip, x, y) {
+		let initialCoordinates = {x: x, y: y};
 		let base = fourInRow.map(a => chip);
 		let diagonalLeft = [];
 		
-		//board.length - 1: Se le resta uno para que no tenga en cuenta
-		//la fila de tope 
-		for(let i = 0; i < 4 && (x >= 0 && y < board.length - 1); i++) {
+		while(x <= WIDTH_LIMIT && y >= 0 && board[y][x] == chip) {
 			fourInLine.push({x: x, y: y});
-			diagonalLeft.splice(i,0, board[y][x]);
+			diagonalLeft.push(board[y][x]);
+			x++; y--;
+		}
+		x=initialCoordinates.x-1;
+		y=initialCoordinates.y+1;
+		while(x >= 0 && y <= HEIGHT_LIMIT && board[y][x] == chip) {
+			fourInLine.push({x: x, y: y});
+			diagonalLeft.push(board[y][x]);
 			x--; y++;
 		}
-				
+		
 		return findSubArrayInArray(diagonalLeft, base);
 	}
 }
