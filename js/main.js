@@ -48,6 +48,9 @@ const X_CORNER_TOP_LEFT = 0,
 var tileMap = new Image();
 tileMap.src = 'image/tileMap.png';
 
+var backgroundImage = new Image();
+backgroundImage.src = 'image/space.png';
+
 var finish = 0;
 var canvas = document.querySelector('#canvas');
 var ctx = canvas.getContext('2d');
@@ -67,7 +70,8 @@ var board = [
 	[1,1,1,1,1,1,1],
 ];
 var WIDTH_LIMIT = board[0].length - 1,
-	HEIGHT_LIMIT = board.length - 2;
+	HEIGHT_LIMIT = board.length - 2,
+	soundFlag = 0;
 	
 var soundChipHit = new Howl({
 	src: ['sound/chipHit2.wav'],
@@ -77,6 +81,11 @@ var soundChipHit = new Howl({
 var soudWinner = new Howl({
 	src: ['sound/winner.wav'],
 	loop: false
+});
+
+var backgroundSound = new Howl({
+	src: ['music/MyVeryOwnDeadShip.ogg'],
+	loop: true
 });
 
 /**
@@ -92,6 +101,11 @@ canvas.addEventListener('mousemove', handlerMouseMoveCanvas);
 btnStartGame.addEventListener('click', handlerClickBtnStartGame);
 
 function mainLoop() {
+	if(soundFlag == 0) {
+		backgroundSound.play();
+		soundFlag = 1;
+	}
+	
 	update();
 	draw();
 	requestAnimationFrame(mainLoop);
@@ -132,6 +146,7 @@ function draw() {
 	console.log("running...");
 	clearCanvas();
 	chips.clear();
+	background.draw();
 	stage.drawBackStage();
 	drawChipMoved();
 	stage.draw();
@@ -144,6 +159,14 @@ function draw() {
 
 function clearCanvas() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+var Background = function() {
+	this.draw = function() {
+		ctx.drawImage(
+			backgroundImage, 0, 0, canvas.offsetWidth, canvas.offsetHeight
+		);
+	}
 }
 
 var Stage = function() {
@@ -521,6 +544,7 @@ var Animation = function(x, y, chip) {
 var animation = new Animation();
 var stage = new Stage();
 var chips = new ChipCollection();
+var background = new Background();
 
 function fillChipWinnerCollection(chipWinner) {
 	soudWinner.play();
